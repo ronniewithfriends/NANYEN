@@ -1,0 +1,16 @@
+.build/
+.swiftpm/
+DerivedData/
+.DS_Store
+**/.DS_Store
+*.xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Expo / React Native
+expo-app/node_modules/
+expo-app/dist/
+expo-app/.expo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

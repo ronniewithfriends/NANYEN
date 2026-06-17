@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NANYEN Preview</title>
+  <style>
+    :root {
+      --ink: #1f1f1d;
+      --muted: #706c63;
+      --page: #ffe6f7;
+      --panel: rgba(255, 255, 255, 0.9);
+      --field: #fff7e6;
+      --card: #fff9e6;
+      --green: #129455;
+      --coral: #ea5048;
+      --purple: #7c42c7;
+      --gold: #f3b33d;
+      --neon-cyan: #24f2ff;
+      --neon-pink: #ff2994;
+      --sun: #ffbd32;
+      --accent: var(--green);
+      --metal-text: linear-gradient(180deg, #ffffff 0%, #f4f8ff 18%, #c2cedd 37%, #687482 53%, #ffffff 66%, #d6dfeb 80%, #98a6b8 100%);
+      font-family: ui-rounded, "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(36, 242, 255, 0.24) 0 14%, transparent 30%),
+        linear-gradient(180deg, #ffe8fb 0%, #aeefff 46%, #ff8fd2 100%);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 55% -20% 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(0deg, rgba(0, 155, 221, 0.3) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(90deg, rgba(0, 155, 221, 0.24) 0 1px, transparent 1px 58px);
+      transform: perspective(430px) rotateX(58deg);
+      transform-origin: top center;
+      opacity: 0.85;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, transparent 0 14%, rgba(255, 104, 178, 0.12) 14% 15%, transparent 15% 18%),
+        radial-gradient(circle at 20% 18%, rgba(36, 242, 255, 0.24), transparent 24%);
+      mix-blend-mode: screen;
+    }
+    main { position: relative; z-index: 1; width: min(100%, 680px); margin: 0 auto; padding: 16px 16px 30px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .today { min-width: 0; }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h1 {
+      position: relative;
+      display: inline-block;
+      margin: 0;
+      font-family: Impact, Haettenschweiler, "Arial Black", "Arial Rounded MT Bold", system-ui, sans-serif;
+      font-size: clamp(36px, 10vw, 52px);
+      line-height: 1;
+      letter-spacing: 2.5px;
+      font-weight: 1000;
+      transform: scaleX(1.08) rotate(-1deg);
+      transform-origin: left center;
+      color: transparent;
+      background: var(--metal-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-stroke: 1.6px #5b6573;
+      text-shadow:
+        3px 3px 0 #34134f,
+        2px 2px 0 rgba(255, 41, 148, 0.88),
+        -1px -1px 0 rgba(255, 255, 255, 0.95),
+        2px -1px 0 rgba(36, 242, 255, 0.82),
+        0 7px 18px rgba(36, 242, 255, 0.3);
+    }
+    h1::after {
+      content: "NANYEN";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      color: transparent;
+      background: linear-gradient(105deg, transparent 0 34%, rgba(255,255,255,0.95) 42%, transparent 52%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      pointer-events: none;
+    }
+
+    :where(.date-line, .panel-title strong, .small-note, label, .money-box span, .metric span, .metric strong, .month-label, .dow, .mini-btn, .calendar-grid button, .genre-btn, .primary-btn, .secondary-btn, .share-btn, .report-top span, .report-sticker, .report-quote, .report-title, .report-number, .report-copy, .hash, .entry span, .entry small, .entry strong, .delete-btn, .status) {
+      color: transparent;
+      background: var(--metal-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow:
+        1px 1px 0 rgba(53, 23, 82, 0.58),
+        -1px 1px 0 rgba(255, 41, 148, 0.34),
+        1px -1px 0 rgba(36, 242, 255, 0.42),
+        0 1px 0 rgba(255, 255, 255, 0.82);
+    }
+
+    .metal-label {
+      color: transparent;
+      background: var(--metal-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow:
+        1px 1px 0 rgba(53, 23, 82, 0.58),
+        -1px 1px 0 rgba(255, 41, 148, 0.34),
+        1px -1px 0 rgba(36, 242, 255, 0.42),
+        0 1px 0 rgba(255, 255, 255, 0.82);
+    }
+
+    input {
+      color: #7a8595;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85),
+        1px -1px 0 rgba(36, 242, 255, 0.18);
+    }
+    .date-line { margin-top: 7px; color: var(--ink); font-size: 15px; font-weight: 900; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .panel {
+      padding: 14px;
+      margin-bottom: 14px;
+      background: var(--panel);
+      border: 1px solid rgba(36, 242, 255, 0.28);
+      border-radius: 8px;
+      box-shadow: 0 18px 38px rgba(255, 41, 148, 0.14);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .panel-title strong { font-size: 15px; font-weight: 1000; }
+    .small-note { color: var(--muted); font-size: 12px; font-weight: 800; }
+
+    .money-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 1000; }
+
+    .money-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 50px;
+      padding: 0 11px;
+      background: var(--field);
+      border-radius: 8px;
+    }
+
+    .money-box.big { height: 76px; }
+    .money-box span { font-size: 18px; font-weight: 1000; }
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #7a8595;
+      font: inherit;
+      font-size: 21px;
+      font-weight: 1000;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85),
+        1px -1px 0 rgba(36, 242, 255, 0.18);
+    }
+    .money-box.big input { font-size: clamp(34px, 11vw, 54px); text-align: center; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .metric { padding: 10px; background: white; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.07); }
+    .metric span { display: block; color: var(--muted); font-size: 11px; font-weight: 900; }
+    .metric strong { display: block; margin-top: 4px; font-size: 15px; font-weight: 1000; overflow-wrap: anywhere; }
+
+    .calendar { display: none; }
+    .calendar.open { display: block; }
+    .settings { display: none; }
+    .settings.open { display: block; }
+    body.settings-mode .main-view,
+    body.share-mode .main-view { display: none; }
+    body.settings-mode #settingsPanel,
+    body.share-mode #sharePanel { display: block; }
+    .screen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .screen-header h2 {
+      margin: 0;
+      font-family: Impact, Haettenschweiler, "Arial Black", "Arial Rounded MT Bold", system-ui, sans-serif;
+      font-size: clamp(28px, 7vw, 38px);
+      line-height: 1;
+      letter-spacing: 2px;
+      font-weight: 1000;
+      transform: scaleX(1.06) rotate(-1deg);
+      transform-origin: left center;
+      color: transparent;
+      background: var(--metal-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-stroke: 1.2px #5b6573;
+      text-shadow:
+        2px 2px 0 #34134f,
+        1px 1px 0 rgba(255, 41, 148, 0.82),
+        -1px -1px 0 rgba(255, 255, 255, 0.92),
+        2px -1px 0 rgba(36, 242, 255, 0.72);
+    }
+    .screen-header span {
+      display: block;
+      margin-top: 5px;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+    .close-btn {
+      display: grid;
+      place-items: center;
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(36, 242, 255, 0.32);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.92);
+      color: var(--ink);
+      font: inherit;
+      font-size: 24px;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(255, 41, 148, 0.16);
+    }
+    .calendar-nav {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .month-label {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+    .mini-btn {
+      min-height: 38px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 7px 14px rgba(36, 242, 255, 0.12);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .calendar-grid button {
+      min-height: 38px;
+      border: 0;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 7px 14px rgba(255, 41, 148, 0.08);
+    }
+    .calendar-grid button.active { background: var(--ink); color: white; }
+    .calendar-grid button.has-entry { box-shadow: inset 0 -4px 0 var(--gold); }
+    .dow { color: var(--muted); text-align: center; font-size: 11px; font-weight: 1000; }
+
+    .genre-grid {
+      display: grid;
+      gap: 8px;
+    }
+    .genre-grid { grid-template-columns: repeat(5, 1fr); margin: 12px 0; }
+
+    .genre-btn, .primary-btn {
+      min-width: 0;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+    .genre-btn { min-height: 44px; padding: 8px 4px; font-size: 12px; }
+    .genre-btn.active { border-color: rgba(255, 41, 148, 0.58); background: rgba(255, 41, 148, 0.13); box-shadow: 0 8px 16px rgba(255, 41, 148, 0.12); }
+    .genre-btn.income.active { border-color: rgba(18, 148, 85, 0.7); background: rgba(18, 148, 85, 0.14); box-shadow: 0 8px 16px rgba(18, 148, 85, 0.12); }
+    .primary-btn {
+      width: 100%;
+      min-height: 48px;
+      color: var(--ink);
+      background: linear-gradient(135deg, #ffffff 0%, #ffd7ef 48%, rgba(36, 242, 255, 0.68) 100%);
+      font-size: 16px;
+      border-color: rgba(255,255,255,0.9);
+      box-shadow: 0 12px 24px rgba(255, 41, 148, 0.22);
+    }
+    .secondary-btn { width: 100%; min-height: 46px; background: rgba(255,255,255,0.94); font-size: 15px; }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .share-launch { margin-bottom: 14px; }
+    .share-panel { display: none; }
+    .share-panel.open { display: block; }
+    .share-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .share-choice-grid button.active {
+      color: var(--ink);
+      background: rgba(36, 242, 255, 0.32);
+      border-color: rgba(255, 41, 148, 0.5);
+    }
+    .share-card-wrap {
+      max-width: 430px;
+      margin: 0 auto 12px;
+    }
+    .share-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .share-btn {
+      min-height: 42px;
+      padding: 8px 4px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 7px 14px rgba(36, 242, 255, 0.12);
+    }
+    .copy-toast {
+      min-height: 18px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .report-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.54), rgba(255,255,255,0) 38%),
+        repeating-linear-gradient(0deg, rgba(36,242,255,0.18) 0 1px, transparent 1px 26px),
+        repeating-linear-gradient(90deg, rgba(36,242,255,0.14) 0 1px, transparent 1px 36px),
+        radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 30%),
+        linear-gradient(135deg, #fff8dd 0%, #dcf8ff 48%, #ffc2e7 100%);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 16px 26px rgba(255, 41, 148, 0.2), 0 0 0 1px rgba(36, 242, 255, 0.14);
+    }
+    .report-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 9px; background: var(--accent); }
+    .report-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 42%;
+      background:
+        linear-gradient(0deg, rgba(255, 41, 148, 0.16), transparent),
+        repeating-linear-gradient(0deg, rgba(36, 242, 255, 0.24) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg, rgba(36, 242, 255, 0.18) 0 1px, transparent 1px 34px);
+      transform: perspective(360px) rotateX(52deg);
+      transform-origin: bottom center;
+    }
+    .report-card > * { position: relative; z-index: 1; }
+    .report-pop {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      font-weight: 1000;
+      color: color-mix(in srgb, var(--accent) 28%, transparent);
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.72);
+      line-height: 1;
+    }
+    .report-pop.one { top: 54px; right: 24px; font-size: 54px; transform: rotate(-12deg); }
+    .report-pop.two { bottom: 58px; left: 24px; font-size: 42px; color: rgba(255, 41, 148, 0.25); transform: rotate(14deg); }
+    .report-pop.three { right: 30px; bottom: 100px; font-size: 22px; color: rgba(36, 242, 255, 0.42); transform: rotate(8deg); }
+    .report-top { display: flex; justify-content: space-between; gap: 8px; color: rgba(31, 31, 29, 0.64); font-size: 12px; font-weight: 1000; }
+    .report-top span:first-child {
+      font-family: Impact, Haettenschweiler, "Arial Black", "Arial Rounded MT Bold", system-ui, sans-serif;
+      letter-spacing: 1.4px;
+      transform: scaleX(1.06);
+      color: transparent;
+      background: linear-gradient(180deg, #ffffff, #f4f8ff 24%, #9faabb 48%, #ffffff 66%, #c4ccd8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-stroke: 0.7px #5b6573;
+      text-shadow: 2px 2px 0 #34134f, 1px 1px 0 rgba(255, 41, 148, 0.72), 1px -1px 0 rgba(36, 242, 255, 0.6);
+    }
+    .report-main { display: flex; align-items: center; margin: auto 0; }
+    .report-sticker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin: 0 0 9px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 1000;
+      box-shadow: 0 6px 14px rgba(255, 41, 148, 0.12);
+    }
+    .report-quote { margin: 0 0 10px; font-size: clamp(32px, 9vw, 48px); line-height: 1.02; font-weight: 1000; letter-spacing: 0; }
+    .report-title { margin: 0 0 8px; font-size: clamp(18px, 5vw, 23px); line-height: 1.08; font-weight: 1000; }
+    .report-number { margin: 0 0 8px; color: var(--accent); font-size: clamp(22px, 7vw, 32px); line-height: 1.05; font-weight: 1000; overflow-wrap: anywhere; }
+    .report-copy { margin: 0; color: rgba(31, 31, 29, 0.7); font-size: 12px; line-height: 1.35; font-weight: 850; }
+    .hash { margin: 0; color: rgba(31, 31, 29, 0.66); font-size: 12px; line-height: 1.3; font-weight: 1000; }
+
+    .entry-list { display: grid; gap: 7px; margin-top: 10px; }
+    .entry { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 9px 10px; background: white; border-radius: 8px; font-size: 13px; font-weight: 900; }
+    .entry small { color: var(--muted); font-size: 11px; }
+    .delete-btn {
+      border: 0;
+      border-radius: 7px;
+      background: rgba(234, 80, 72, 0.12);
+      color: var(--coral);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 1000;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+    .positive, .negative {
+      color: transparent;
+      background: var(--metal-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 13px 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 12px 10px 24px; }
+      .money-grid, .report-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .genre-grid { grid-template-columns: repeat(3, 1fr); }
+      .share-actions { grid-template-columns: repeat(2, 1fr); }
+      .report-card { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar main-view">
+      <button class="icon-btn" id="settingsToggle" type="button" aria-label="設定を開く">⚙️</button>
+      <div class="today">
+        <h1>NANYEN</h1>
+        <div class="date-line" id="dateLine"></div>
+      </div>
+      <button class="icon-btn" id="calendarToggle" type="button" aria-label="カレンダーを開く">📅</button>
+    </section>
+
+    <section class="panel calendar main-view" id="calendarPanel">
+      <div class="panel-title">
+        <strong>日付を選ぶ</strong>
+        <span class="small-note">過去の日付にも記録できます</span>
+      </div>
+      <div class="calendar-nav">
+        <button class="mini-btn" id="prevMonth" type="button">‹</button>
+        <div class="month-label" id="calendarMonthLabel"></div>
+        <button class="mini-btn" id="nextMonth" type="button">›</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="panel settings screen-view" id="settingsPanel">
+      <div class="screen-header">
+        <div>
+          <h2>NANYEN</h2>
+          <span class="metal-label">設定</span>
+        </div>
+        <button class="close-btn" id="settingsClose" type="button" aria-label="設定を閉じる">×</button>
+      </div>
+      <div class="panel-title">
+        <strong>月のだいたい設定</strong>
+        <span class="small-note">この月の設定</span>
+      </div>
+      <div class="money-grid">
+        <div>
+          <label for="income">月の収入</label>
+          <div class="money-box"><span>¥</span><input id="income" inputmode="numeric" value="260000"></div>
+        </div>
+        <div>
+          <label for="fixed">月の固定費</label>
+          <div class="money-box"><span>¥</span><input id="fixed" inputmode="numeric" value="150000"></div>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="metric"><span>自由に使える</span><strong id="freeMonthly"></strong></div>
+        <div class="metric"><span>1日ペース</span><strong id="dailyPace"></strong></div>
+        <div class="metric"><span>1週間ペース</span><strong id="weeklyPace"></strong></div>
+      </div>
+    </section>
+
+    <section class="panel main-view">
+      <div class="panel-title">
+        <strong>今日の入力</strong>
+        <span class="small-note" id="selectedDateMini"></span>
+      </div>
+      <label for="amount">金額</label>
+      <div class="money-box big"><span>¥</span><input id="amount" inputmode="numeric" value="1200"></div>
+
+      <div class="genre-grid" id="genreButtons">
+        <button type="button" class="genre-btn active" data-value="日用品">日用品</button>
+        <button type="button" class="genre-btn" data-value="食事">食事</button>
+        <button type="button" class="genre-btn" data-value="娯楽">娯楽</button>
+        <button type="button" class="genre-btn" data-value="仕事">仕事</button>
+        <button type="button" class="genre-btn income" data-value="収入">収入</button>
+      </div>
+      <button class="primary-btn" id="recordButton" type="button">記録する</button>
+    </section>
+
+    <button class="primary-btn share-launch main-view" id="shareOpenButton" type="button">結果をシェア！</button>
+
+    <section class="panel share-panel screen-view" id="sharePanel">
+      <div class="screen-header">
+        <div>
+          <h2>NANYEN</h2>
+          <span class="metal-label">結果をシェア</span>
+        </div>
+        <button class="close-btn" id="shareClose" type="button" aria-label="結果をシェアを閉じる">×</button>
+      </div>
+      <div class="panel-title">
+        <strong>ビジュアルカード作成</strong>
+        <span class="small-note" id="shareRangeNote"></span>
+      </div>
+      <div class="share-choice-grid" id="shareRangeButtons">
+        <button type="button" class="mini-btn active" data-value="daily">1日</button>
+        <button type="button" class="mini-btn" data-value="weekly">1週間</button>
+      </div>
+
+      <div class="share-card-wrap">
+        <article class="report-card" id="shareCard">
+          <span class="report-pop one" id="shareComicMark"></span>
+          <span class="report-pop two">✧</span>
+          <span class="report-pop three" id="shareSpark"></span>
+          <div class="report-top"><span>NANYEN</span><span id="sharePeriod"></span></div>
+          <div class="report-main">
+            <div>
+              <p class="report-sticker" id="shareSticker"></p>
+              <p class="report-quote" id="shareQuote"></p>
+              <p class="report-title" id="shareTitle"></p>
+              <p class="report-number" id="shareNumber"></p>
+              <p class="report-copy" id="shareCopy"></p>
+            </div>
+          </div>
+          <p class="hash" id="shareHash">#NANYEN #今日の何円 #今週の何円</p>
+        </article>
+      </div>
+
+      <div class="share-actions">
+        <button class="share-btn" id="shareX" type="button">X</button>
+        <button class="share-btn" id="shareInstagram" type="button">Instagram</button>
+        <button class="share-btn" id="shareThreads" type="button">Threads</button>
+        <button class="share-btn" id="shareLine" type="button">LINE</button>
+      </div>
+      <p class="copy-toast" id="shareToast"></p>
+    </section>
+
+    <section class="panel main-view">
+      <div class="panel-title">
+        <strong>選んだ日の記録</strong>
+        <span class="small-note" id="entryCount"></span>
+      </div>
+      <div class="entry-list" id="entryList"></div>
+    </section>
+
+    <section class="status main-view">
+      ここが今の進捗確認ページです。カードは普段は隠れていて、「結果をシェア！」から1日/1週間を選んで作れます。
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      selectedDate: new Date(),
+      genre: "日用品",
+      shareRange: "daily",
+      nextEntryId: 3,
+      plans: {},
+      entries: [
+        { id: 1, date: isoDate(new Date()), genre: "食事", amount: -1200 },
+        { id: 2, date: isoDate(new Date()), genre: "日用品", amount: -800 }
+      ]
+    };
+
+    const incomeInput = document.querySelector("#income");
+    const fixedInput = document.querySelector("#fixed");
+    const amountInput = document.querySelector("#amount");
+    const calendarPanel = document.querySelector("#calendarPanel");
+    const settingsPanel = document.querySelector("#settingsPanel");
+    const sharePanel = document.querySelector("#sharePanel");
+    let latestSharePayload = null;
+    const shareHashtags = "#NANYEN #今日の何円 #今週の何円";
+
+    state.plans[monthKey(new Date())] = { income: 260000, fixed: 150000 };
+
+    function yenValue(input) {
+      const digits = input.value.replace(/[^\d]/g, "");
+      input.value = digits;
+      return Number(digits || 0);
+    }
+
+    function yen(value) {
+      const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+      return `${sign}¥${Math.abs(Math.round(value)).toLocaleString("ja-JP")}`;
+    }
+
+    function isoDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function monthKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      return `${year}-${month}`;
+    }
+
+    function ensurePlan(date) {
+      const key = monthKey(date);
+      if (!state.plans[key]) {
+        state.plans[key] = { income: 260000, fixed: 150000 };
+      }
+      return state.plans[key];
+    }
+
+    function syncSettingsInputs() {
+      const plan = ensurePlan(state.selectedDate);
+      incomeInput.value = String(plan.income);
+      fixedInput.value = String(plan.fixed);
+    }
+
+    function saveVisiblePlan() {
+      const plan = ensurePlan(state.selectedDate);
+      plan.income = yenValue(incomeInput);
+      plan.fixed = yenValue(fixedInput);
+    }
+
+    function dateLabel(date) {
+      return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+    }
+
+    function daysInMonth(date) {
+      return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
+
+    function startOfWeek(date) {
+      const result = new Date(date);
+      const day = result.getDay();
+      result.setDate(result.getDate() - day);
+      result.setHours(0, 0, 0, 0);
+      return result;
+    }
+
+    function netForDates(dateKeys) {
+      return state.entries
+        .filter((entry) => dateKeys.includes(entry.date))
+        .reduce((sum, entry) => sum + entry.amount, 0);
+    }
+
+    function spendForNet(net) {
+      return Math.max(0, -net);
+    }
+
+    const underPaceLines = [
+      { title: "ペースより軽め", quote: "財布、今日だけ羽生えてる", copy: "この余裕、ちょっと映画の主人公っぽい。", sticker: "✦ 軽やか判定 ✦", comicMark: "♡", spark: "キラ" },
+      { title: "いい感じに低空飛行", quote: "お金の減り方、上品", copy: "派手じゃないけど強い。こういう日があとで効く。", sticker: "余裕あり", comicMark: "♪", spark: "nice" },
+      { title: "予算と仲良し", quote: "今日は財布と握手できる", copy: "ちゃんと残ってる。財布もたぶん拍手してる。", sticker: "平和", comicMark: "◎", spark: "ぱち" },
+      { title: "だいたい勝ち", quote: "出費、ちゃんと小走り", copy: "暴走してない。えらいというより、地味に強い。", sticker: "小走り支出", comicMark: "☆", spark: "ok" },
+      { title: "かなり穏やか", quote: "財布が深呼吸してる", copy: "今日の支出、温度でいうとぬるめ。かなり助かる。", sticker: "すやすや財布", comicMark: "〜", spark: "ほっ" },
+      { title: "ペース守れてる", quote: "未来の自分が少し笑った", copy: "あとで効くやつ。地味だけど、こういうの好き。", sticker: "未来加点", comicMark: "＋", spark: "ふふ" },
+      { title: "余白あり", quote: "財布にまだ余白がある", copy: "余白って大事。予定外のアイスも理論上いける。", sticker: "余白発見", comicMark: "□", spark: "余" },
+      { title: "今日は堅実", quote: "支出がちゃんと整列してる", copy: "並び方がきれい。家計の体育委員みたいな日。", sticker: "整列中", comicMark: "!!", spark: "ピシ" },
+      { title: "いい守備", quote: "財布の守備範囲、広め", copy: "攻めすぎず守れてる。今日は守備職人。", sticker: "守備成功", comicMark: "◇", spark: "守" },
+      { title: "レア勝ち", quote: "財布、今日だけドヤ顔", copy: "これは10回に1回のてへぺろ勝ち。調子のってOK。", sticker: "✦ てへぺろ勝ち ✦", comicMark: "♡", spark: "てへ" }
+    ];
+
+    const overPaceLines = [
+      { title: "ペースより多め", quote: "財布、ちょっと叫んでた", copy: "でも記録した。そこが今日のちゃんとした部分。", sticker: "まあヨシ案件", comicMark: "?!", spark: "わっ" },
+      { title: "勢いあり", quote: "支出、今日は前のめり", copy: "前のめりな日もある。問題は気づけたこと。", sticker: "前のめり", comicMark: "!!", spark: "どん" },
+      { title: "ちょい派手", quote: "財布にスポットライト当たった", copy: "目立つ日だった。次の一手でちゃんと戻せる。", sticker: "派手め", comicMark: "★", spark: "ギラ" },
+      { title: "予算より元気", quote: "支出のテンション高め", copy: "今日はお金がライブ会場にいた。記録はできた。", sticker: "テンション高", comicMark: "♪", spark: "wow" },
+      { title: "すこし暴れた", quote: "財布が一瞬だけ遠い目", copy: "遠い目の日もある。見なかったことにはしてない。", sticker: "遠い目", comicMark: "...", spark: "しー" },
+      { title: "多めの日", quote: "レシートが急に主張してきた", copy: "主張強め。でも記録したから、ちゃんと回収済み。", sticker: "回収済み", comicMark: "↗", spark: "回収" },
+      { title: "今日は攻めた", quote: "財布、攻めの姿勢", copy: "攻めた日は守りに戻れる。まずは現状把握。", sticker: "攻めの日", comicMark: "▲", spark: "攻" },
+      { title: "ちょいオーバー", quote: "お金、少し早歩き", copy: "走ってはいない。早歩き。まだ会話できる。", sticker: "早歩き支出", comicMark: "≡", spark: "速" },
+      { title: "にぎやか会計", quote: "財布の中で祭り開催", copy: "祭りの後に記録できる人、だいぶ強い。", sticker: "祭り後", comicMark: "＊", spark: "祭" },
+      { title: "レア自虐", quote: "財布、今日は照れてる", copy: "10回に1回のてへぺろ回。笑って次いこ。", sticker: "てへぺろ回", comicMark: "?!", spark: "てへ" }
+    ];
+
+    function variantIndex(actualSpend, pace, seed, count) {
+      const seedValue = Array.from(seed || "").reduce((sum, char) => sum + char.codePointAt(0), 0);
+      return Math.abs(actualSpend * 31 + Math.round(pace) * 17 + seedValue) % count;
+    }
+
+    function evaluation(actualSpend, pace, seed = "") {
+      const diff = pace - actualSpend;
+      if (diff >= 0) {
+        const line = underPaceLines[variantIndex(actualSpend, pace, seed, underPaceLines.length)];
+        return {
+          type: "under",
+          color: "#129455",
+          title: line.title,
+          quote: line.quote,
+          number: `${yen(diff)} 余裕`,
+          copy: line.copy,
+          sticker: line.sticker,
+          comicMark: line.comicMark,
+          spark: line.spark
+        };
+      }
+      const line = overPaceLines[variantIndex(actualSpend, pace, seed, overPaceLines.length)];
+      return {
+        type: "over",
+        color: "#ea5048",
+        title: line.title,
+        quote: line.quote,
+        number: `${yen(Math.abs(diff))} 多め`,
+        copy: line.copy,
+        sticker: line.sticker,
+        comicMark: line.comicMark,
+        spark: line.spark
+      };
+    }
+
+    function currentPlan() {
+      const plan = ensurePlan(state.selectedDate);
+      const free = plan.income - plan.fixed;
+      const daily = Math.max(0, free) / daysInMonth(state.selectedDate);
+      return { free, daily, weekly: daily * 7 };
+    }
+
+    function applyMetalLabels(root = document) {
+      root.querySelectorAll("button:not(.icon-btn)").forEach((button) => {
+        [...button.childNodes].forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+            const span = document.createElement("span");
+            span.className = "metal-label";
+            span.textContent = node.textContent;
+            button.replaceChild(span, node);
+          }
+        });
+      });
+      root.querySelectorAll(".entry span, .entry small, .entry strong").forEach((item) => {
+        item.classList.add("metal-label");
+      });
+    }
+
+    function renderCalendar() {
+      const grid = document.querySelector("#calendarGrid");
+      const current = state.selectedDate;
+      const first = new Date(current.getFullYear(), current.getMonth(), 1);
+      const total = daysInMonth(current);
+      const selectedKey = isoDate(current);
+      const entryDates = new Set(state.entries.map((entry) => entry.date));
+      const dows = ["日", "月", "火", "水", "木", "金", "土"];
+      document.querySelector("#calendarMonthLabel").textContent = `${current.getFullYear()}年${current.getMonth() + 1}月`;
+      grid.innerHTML = dows.map((dow) => `<div class="dow">${dow}</div>`).join("");
+      for (let i = 0; i < first.getDay(); i += 1) grid.insertAdjacentHTML("beforeend", "<div></div>");
+      for (let day = 1; day <= total; day += 1) {
+        const date = new Date(current.getFullYear(), current.getMonth(), day);
+        const key = isoDate(date);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.innerHTML = `<span class="metal-label">${day}</span>`;
+        if (key === selectedKey) button.classList.add("active");
+        if (entryDates.has(key)) button.classList.add("has-entry");
+        button.addEventListener("click", () => {
+          state.selectedDate = date;
+          syncSettingsInputs();
+          calendarPanel.classList.remove("open");
+          update();
+        });
+        grid.appendChild(button);
+      }
+    }
+
+    function renderEntries() {
+      const key = isoDate(state.selectedDate);
+      const list = document.querySelector("#entryList");
+      const entries = state.entries.filter((entry) => entry.date === key);
+      document.querySelector("#entryCount").textContent = `${entries.length}件`;
+      if (entries.length === 0) {
+        list.innerHTML = `<div class="entry"><span>まだ記録なし</span><small>ぼちぼちでOK</small><span></span></div>`;
+        return;
+      }
+      list.innerHTML = entries.map((entry) => `
+        <div class="entry" data-id="${entry.id}">
+          <span>${entry.genre}</span>
+          <strong class="${entry.amount > 0 ? "positive" : "negative"}">${yen(entry.amount)}</strong>
+          <button class="delete-btn" type="button" data-id="${entry.id}">取消</button>
+        </div>
+      `).join("");
+      list.querySelectorAll(".delete-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const id = Number(button.dataset.id);
+          state.entries = state.entries.filter((entry) => entry.id !== id);
+          update();
+        });
+      });
+    }
+
+    function renderShareCard(plan, dailySpend, weeklySpend, weekStart, weekEnd) {
+      const isDaily = state.shareRange === "daily";
+      const pace = isDaily ? plan.daily : plan.weekly;
+      const spend = isDaily ? dailySpend : weeklySpend;
+      const periodLabel = isDaily
+        ? `${state.selectedDate.getMonth() + 1}/${state.selectedDate.getDate()}`
+        : `${weekStart.getMonth() + 1}/${weekStart.getDate()}-${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`;
+      const hash = shareHashtags;
+      const result = evaluation(spend, pace, `${periodLabel}-${state.shareRange}`);
+      document.querySelector("#shareRangeNote").textContent = isDaily ? "1日の結果" : "1週間の結果";
+      document.querySelector("#sharePeriod").textContent = periodLabel;
+      document.querySelector("#shareSticker").textContent = result.sticker;
+      document.querySelector("#shareComicMark").textContent = result.comicMark;
+      document.querySelector("#shareSpark").textContent = result.spark;
+      document.querySelector("#shareQuote").textContent = result.quote;
+      document.querySelector("#shareTitle").textContent = result.title;
+      document.querySelector("#shareNumber").textContent = result.number;
+      document.querySelector("#shareCopy").textContent = result.copy;
+      document.querySelector("#shareHash").textContent = hash;
+      document.querySelector("#shareCard").style.setProperty("--accent", result.color);
+      latestSharePayload = {
+        text: `NANYEN ${periodLabel}\n${result.sticker}\n${result.quote}\n${result.number}\n${result.copy}\n${hash}`,
+        url: window.location.href,
+        period: periodLabel,
+        sticker: result.sticker,
+        comicMark: result.comicMark,
+        spark: result.spark,
+        quote: result.quote,
+        title: result.title,
+        number: result.number,
+        copy: result.copy,
+        hash,
+        color: result.color,
+        range: state.shareRange
+      };
+    }
+
+    function update() {
+      const plan = currentPlan();
+      const selectedKey = isoDate(state.selectedDate);
+      const dailyNet = netForDates([selectedKey]);
+      const dailySpend = spendForNet(dailyNet);
+
+      const weekStart = startOfWeek(state.selectedDate);
+      const weekKeys = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(weekStart);
+        date.setDate(weekStart.getDate() + index);
+        return isoDate(date);
+      });
+      const weeklySpend = spendForNet(netForDates(weekKeys));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      document.querySelector("#dateLine").textContent = dateLabel(state.selectedDate);
+      document.querySelector("#selectedDateMini").textContent = dateLabel(state.selectedDate);
+      document.querySelector("#freeMonthly").textContent = yen(plan.free);
+      document.querySelector("#dailyPace").textContent = yen(plan.daily);
+      document.querySelector("#weeklyPace").textContent = yen(plan.weekly);
+
+      renderShareCard(plan, dailySpend, weeklySpend, weekStart, weekEnd);
+      renderCalendar();
+      renderEntries();
+      applyMetalLabels();
+    }
+
+    function wireChoice(containerId, key, buttonClass) {
+      document.querySelectorAll(`#${containerId} button`).forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(`#${containerId} button`).forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          state[key] = button.dataset.value;
+          update();
+        });
+      });
+    }
+
+    function setShareToast(message) {
+      document.querySelector("#shareToast").textContent = message;
+      window.setTimeout(() => {
+        document.querySelector("#shareToast").textContent = "";
+      }, 2200);
+    }
+
+    async function copyShareText() {
+      const payload = latestSharePayload || { text: "NANYEN", url: window.location.href };
+      try {
+        await navigator.clipboard.writeText(payload.text);
+        setShareToast("共有文をコピーしました");
+      } catch {
+        setShareToast("共有文を選択してコピーしてください");
+      }
+    }
+
+    function openShareUrl(url, targetWindow = null) {
+      if (targetWindow && !targetWindow.closed) {
+        targetWindow.location.href = url;
+        return true;
+      }
+      return !!window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function hexToRgba(hex, alpha) {
+      const value = hex.replace("#", "");
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+      const words = Array.from(text);
+      let line = "";
+      let lines = 0;
+      for (const char of words) {
+        const testLine = line + char;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+          ctx.fillText(line, x, y);
+          y += lineHeight;
+          lines += 1;
+          line = char;
+          if (lines >= maxLines - 1) break;
+        } else {
+          line = testLine;
+        }
+      }
+      if (line && lines < maxLines) ctx.fillText(line, x, y);
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(x + r, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawMetalLogo(ctx, text, x, y, size) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-1 * Math.PI / 180);
+      ctx.scale(1.08, 1);
+      ctx.font = `1000 ${size}px Impact, "Arial Black", system-ui, sans-serif`;
+      ctx.lineJoin = "round";
+      ctx.lineWidth = Math.max(4, size * 0.1);
+      ctx.strokeStyle = "#5b6573";
+      ctx.strokeText(text, 0, 0);
+      ctx.fillStyle = "#34134f";
+      ctx.fillText(text, 4, 4);
+      ctx.fillStyle = "rgba(255, 41, 148, 0.88)";
+      ctx.fillText(text, 2, 2);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+      ctx.fillText(text, -3, -3);
+      ctx.fillStyle = "rgba(36, 242, 255, 0.75)";
+      ctx.fillText(text, 4, -3);
+      const gradient = ctx.createLinearGradient(0, -size, 0, 8);
+      gradient.addColorStop(0, "#ffffff");
+      gradient.addColorStop(0.2, "#f4f8ff");
+      gradient.addColorStop(0.38, "#bcc8d6");
+      gradient.addColorStop(0.52, "#6f7a89");
+      gradient.addColorStop(0.65, "#ffffff");
+      gradient.addColorStop(0.8, "#d5dde8");
+      gradient.addColorStop(1, "#9aa7b8");
+      ctx.fillStyle = gradient;
+      ctx.fillText(text, 0, 0);
+      const shine = ctx.createLinearGradient(0, -size * 0.5, size * 4.5, -size * 0.1);
+      shine.addColorStop(0, "rgba(255,255,255,0)");
+      shine.addColorStop(0.42, "rgba(255,255,255,0.95)");
+      shine.addColorStop(0.55, "rgba(255,255,255,0)");
+      ctx.fillStyle = shine;
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    }
+
+    async function createShareCardBlob() {
+      const payload = latestSharePayload || { period: "", sticker: "✦ 軽やか判定 ✦", comicMark: "♡", spark: "キラ", quote: "財布、今日だけ羽生えてる", title: "NANYEN", number: "", copy: "", hash: shareHashtags, color: "#129455" };
+      if (document.fonts?.ready) await document.fonts.ready;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext("2d");
+
+      const cardGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+      cardGradient.addColorStop(0, "#fff8dd");
+      cardGradient.addColorStop(0.48, "#dcf8ff");
+      cardGradient.addColorStop(1, "#ffc2e7");
+      ctx.fillStyle = cardGradient;
+      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.strokeStyle = "rgba(36, 242, 255, 0.18)";
+      ctx.lineWidth = 2;
+      for (let y = 640; y <= 1080; y += 34) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(1080, y);
+        ctx.stroke();
+      }
+      for (let x = -120; x <= 1200; x += 58) {
+        ctx.beginPath();
+        ctx.moveTo(540, 625);
+        ctx.lineTo(x, 1080);
+        ctx.stroke();
+      }
+      ctx.fillStyle = payload.color;
+      ctx.fillRect(0, 0, 1080, 30);
+      ctx.fillStyle = hexToRgba(payload.color, 0.22);
+      ctx.beginPath();
+      ctx.arc(990, 90, 190, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(910, 180);
+      ctx.rotate(-12 * Math.PI / 180);
+      ctx.fillStyle = hexToRgba(payload.color, 0.28);
+      ctx.font = "1000 148px ui-rounded, system-ui, sans-serif";
+      ctx.fillText(payload.comicMark, 0, 0);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(90, 780);
+      ctx.rotate(14 * Math.PI / 180);
+      ctx.fillStyle = "rgba(255,41,148,0.28)";
+      ctx.font = "1000 96px ui-rounded, system-ui, sans-serif";
+      ctx.fillText("✧", 0, 0);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(870, 845);
+      ctx.rotate(8 * Math.PI / 180);
+      ctx.fillStyle = "rgba(36,242,255,0.46)";
+      ctx.font = "1000 48px ui-rounded, system-ui, sans-serif";
+      ctx.fillText(payload.spark, 0, 0);
+      ctx.restore();
+
+      drawMetalLogo(ctx, "NANYEN", 76, 94, 42);
+      ctx.fillStyle = "rgba(31, 31, 29, 0.64)";
+      ctx.font = "900 34px ui-rounded, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(payload.period, 1004, 92);
+      ctx.textAlign = "left";
+
+      ctx.fillStyle = "#ffffff";
+      ctx.globalAlpha = 0.48;
+      ctx.fillRect(76, 300, 928, 300);
+      ctx.globalAlpha = 1;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.globalAlpha = 0.72;
+      roundRect(ctx, 104, 330, 360, 56, 28);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = payload.color;
+      ctx.font = "1000 28px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.sticker, 126, 366, 320, 32, 1);
+
+      ctx.fillStyle = "#6f7a89";
+      ctx.font = "1000 84px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.quote, 104, 470, 850, 92, 2);
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "1000 42px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.title, 104, 650, 850, 54, 1);
+
+      ctx.fillStyle = payload.color;
+      ctx.font = "1000 86px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.number, 104, 745, 850, 92, 2);
+
+      ctx.fillStyle = "rgba(31, 31, 29, 0.7)";
+      ctx.font = "900 38px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.copy, 104, 875, 850, 50, 2);
+
+      ctx.fillStyle = "rgba(31, 31, 29, 0.66)";
+      ctx.font = "1000 34px ui-rounded, system-ui, sans-serif";
+      wrapText(ctx, payload.hash, 76, 990, 920, 42, 2);
+
+      return await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function shareUrlFor(targetName, payload) {
+      const text = encodeURIComponent(payload.text || "NANYEN");
+      const url = encodeURIComponent(payload.url || window.location.href);
+      switch (targetName) {
+        case "X":
+          return `https://twitter.com/intent/tweet?text=${text}`;
+        case "Threads":
+          return `https://www.threads.net/intent/post?text=${text}`;
+        case "LINE":
+          return `https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`;
+        case "Instagram":
+          return "https://www.instagram.com/";
+        default:
+          return "";
+      }
+    }
+
+    function openTargetShare(targetName, payload, targetWindow = null) {
+      const url = shareUrlFor(targetName, payload);
+      if (!url) return false;
+      return openShareUrl(url, targetWindow);
+    }
+
+    async function shareImageOrSave(targetName) {
+      const payload = latestSharePayload || { text: "NANYEN", url: window.location.href };
+      const canTryNativeShare = !!navigator.share;
+      const fallbackWindow = canTryNativeShare ? null : window.open("about:blank", "_blank", "noopener,noreferrer");
+      const blob = await createShareCardBlob();
+      const filename = `NANYEN-${state.shareRange}-${isoDate(state.selectedDate)}.png`;
+      const file = new File([blob], filename, { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+        try {
+          await navigator.share({ files: [file], text: payload.text });
+          setShareToast("画像共有を開きました");
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") {
+            setShareToast("共有をキャンセルしました");
+            return;
+          }
+        }
+      }
+
+      downloadBlob(blob, filename);
+      if (openTargetShare(targetName, payload, fallbackWindow)) {
+        const note = targetName === "Instagram"
+          ? "PNG画像を保存しました。Instagramで画像を選んで投稿できます"
+          : `PNG画像を保存して、${targetName}の投稿画面を開きました`;
+        setShareToast(note);
+        return;
+      }
+      if (fallbackWindow && !fallbackWindow.closed) fallbackWindow.close();
+      setShareToast("PNG画像を保存しました");
+    }
+
+    document.querySelector("#calendarToggle").addEventListener("click", () => {
+      calendarPanel.classList.toggle("open");
+    });
+
+    document.querySelector("#settingsToggle").addEventListener("click", () => {
+      document.body.classList.add("settings-mode");
+      document.body.classList.remove("share-mode");
+      calendarPanel.classList.remove("open");
+      syncSettingsInputs();
+      update();
+    });
+
+    document.querySelector("#settingsClose").addEventListener("click", () => {
+      document.body.classList.remove("settings-mode");
+      update();
+    });
+
+    document.querySelector("#prevMonth").addEventListener("click", () => {
+      const date = new Date(state.selectedDate);
+      date.setMonth(date.getMonth() - 1);
+      state.selectedDate = date;
+      syncSettingsInputs();
+      update();
+    });
+
+    document.querySelector("#nextMonth").addEventListener("click", () => {
+      const date = new Date(state.selectedDate);
+      date.setMonth(date.getMonth() + 1);
+      state.selectedDate = date;
+      syncSettingsInputs();
+      update();
+    });
+
+    document.querySelector("#recordButton").addEventListener("click", () => {
+      const raw = yenValue(amountInput);
+      if (raw <= 0) return;
+      const signedAmount = state.genre === "収入" ? raw : -raw;
+      state.entries.push({ id: state.nextEntryId, date: isoDate(state.selectedDate), genre: state.genre, amount: signedAmount });
+      state.nextEntryId += 1;
+      amountInput.value = "";
+      update();
+    });
+
+    document.querySelector("#shareOpenButton").addEventListener("click", () => {
+      document.body.classList.add("share-mode");
+      document.body.classList.remove("settings-mode");
+      calendarPanel.classList.remove("open");
+      update();
+    });
+
+    document.querySelector("#shareClose").addEventListener("click", () => {
+      document.body.classList.remove("share-mode");
+      update();
+    });
+
+    document.querySelectorAll("#shareRangeButtons button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#shareRangeButtons button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        state.shareRange = button.dataset.value;
+        update();
+      });
+    });
+
+    document.querySelector("#shareX").addEventListener("click", () => {
+      shareImageOrSave("X");
+    });
+
+    document.querySelector("#shareThreads").addEventListener("click", () => {
+      shareImageOrSave("Threads");
+    });
+
+    document.querySelector("#shareLine").addEventListener("click", () => {
+      shareImageOrSave("LINE");
+    });
+
+    document.querySelector("#shareInstagram").addEventListener("click", () => {
+      shareImageOrSave("Instagram");
+    });
+
+    incomeInput.addEventListener("input", () => { saveVisiblePlan(); update(); });
+    fixedInput.addEventListener("input", () => { saveVisiblePlan(); update(); });
+    amountInput.addEventListener("input", () => yenValue(amountInput));
+    wireChoice("genreButtons", "genre");
+    syncSettingsInputs();
+    applyMetalLabels();
+    update();
+  </script>
+</body>
+</html>
