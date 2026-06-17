@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -84,15 +85,45 @@ export default function App() {
   const [selectedGenre, setSelectedGenre] = useState<Genre>('日用品');
   const [amountText, setAmountText] = useState('1200');
   const [shareRange, setShareRange] = useState<ShareRange>('day');
-  const [nextEntryId, setNextEntryId] = useState(3);
-  const [plans, setPlans] = useState<Record<string, MonthlyPlan>>({
-    [monthKey(today)]: { incomeYen: 260000, fixedCostYen: 150000 },
-  });
-  const [entries, setEntries] = useState<MoneyEntry[]>([
-    { id: 1, dateKey: dateKey(today), genre: '食事', amountYen: -1200 },
-    { id: 2, dateKey: dateKey(today), genre: '日用品', amountYen: -800 },
-  ]);
+  const [nextEntryId, setNextEntryId] = useState(1);
+  const [plans, setPlans] = useState<Record<string, MonthlyPlan>>({});
+  const [entries, setEntries] = useState<MoneyEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const cardRef = useRef<View>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [entriesJson, plansJson, nextIdStr] = await Promise.all([
+          AsyncStorage.getItem('nanyen_entries'),
+          AsyncStorage.getItem('nanyen_plans'),
+          AsyncStorage.getItem('nanyen_next_id'),
+        ]);
+        if (entriesJson) setEntries(JSON.parse(entriesJson));
+        if (plansJson) setPlans(JSON.parse(plansJson));
+        if (nextIdStr) setNextEntryId(Number(nextIdStr));
+      } catch {
+        // proceed without stored data if storage is unavailable
+      }
+      setLoaded(true);
+    }
+    load();
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+    AsyncStorage.setItem('nanyen_entries', JSON.stringify(entries)).catch(() => {});
+  }, [entries, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    AsyncStorage.setItem('nanyen_plans', JSON.stringify(plans)).catch(() => {});
+  }, [plans, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    AsyncStorage.setItem('nanyen_next_id', String(nextEntryId)).catch(() => {});
+  }, [nextEntryId, loaded]);
 
   const plan = plans[monthKey(selectedDate)] ?? { incomeYen: 260000, fixedCostYen: 150000 };
   const freeMonthly = plan.incomeYen - plan.fixedCostYen;
