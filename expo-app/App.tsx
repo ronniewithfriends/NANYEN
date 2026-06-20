@@ -43,7 +43,7 @@ export default function App() {
   const [monthCursor, setMonthCursor] = useState(today);
   const [activeScreen, setActiveScreen] = useState<'main' | 'settings' | 'share'>('main');
   const [selectedGenre, setSelectedGenre] = useState<Genre>('日用品');
-  const [amountText, setAmountText] = useState('1200');
+  const [amountText, setAmountText] = useState('');
   const [shareRange, setShareRange] = useState<ShareRange>('day');
   const [nextEntryId, setNextEntryId] = useState(1);
   const [plans, setPlans] = useState<Record<string, MonthlyPlan>>({});
