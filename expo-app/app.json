@@ -10,13 +10,29 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.nanyen.mobile"
+      "bundleIdentifier": "app.nanyen.mobile",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.app.nanyen.mobile"
+        ]
+      }
     },
     "android": {
       "package": "app.nanyen.mobile"
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
+          }
+        }
+      ],
+      "@bacons/apple-targets"
+    ]
   }
 }

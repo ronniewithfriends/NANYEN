@@ -2,9 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  AppState,
   Platform,
   Pressable,
   SafeAreaView,
@@ -35,6 +36,7 @@ import {
   weekLabel,
 } from './src/utils/date';
 import { paceResult, spendForEntries, yen, yenValue } from './src/utils/money';
+import { pullWidgetEntries } from './src/utils/widgetSync';
 
 const today = new Date();
 
@@ -50,6 +52,11 @@ export default function App() {
   const [entries, setEntries] = useState<MoneyEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const cardRef = useRef<View>(null);
+  const nextIdRef = useRef(nextEntryId);
+
+  useEffect(() => {
+    nextIdRef.current = nextEntryId;
+  }, [nextEntryId]);
 
   useEffect(() => {
     async function load() {
@@ -84,6 +91,27 @@ export default function App() {
     if (!loaded) return;
     AsyncStorage.setItem('nanyen_next_id', String(nextEntryId)).catch(() => {});
   }, [nextEntryId, loaded]);
+
+  // Pull any entries recorded from the home-screen widget and merge them in.
+  const syncWidgetEntries = useCallback(async () => {
+    const { newEntries, nextId } = await pullWidgetEntries(nextIdRef.current);
+    if (newEntries.length === 0) return;
+    nextIdRef.current = nextId;
+    setEntries((current) => [...current, ...newEntries]);
+    setNextEntryId(nextId);
+  }, []);
+
+  // Sync once after initial load, and again whenever the app returns to foreground.
+  useEffect(() => {
+    if (loaded) syncWidgetEntries();
+  }, [loaded, syncWidgetEntries]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') syncWidgetEntries();
+    });
+    return () => subscription.remove();
+  }, [syncWidgetEntries]);
 
   const plan = plans[monthKey(selectedDate)] ?? { incomeYen: 260000, fixedCostYen: 150000 };
   const freeMonthly = plan.incomeYen - plan.fixedCostYen;
