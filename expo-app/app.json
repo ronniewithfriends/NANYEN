@@ -11,10 +11,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.nanyen.mobile",
+      "appleTeamId": "94ZX7L3A2K",
       "entitlements": {
         "com.apple.security.application-groups": [
           "group.app.nanyen.mobile"
         ]
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
