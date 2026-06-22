@@ -33,6 +33,29 @@
         }
       ],
       "@bacons/apple-targets"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "app.nanyen.mobile.widget",
+                  "targetName": "NANYENWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.app.nanyen.mobile"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "dca6e341-a14b-48a6-b589-0c221ab0fc82"
+      }
+    },
+    "owner": "ronniewithfriends"
   }
 }
