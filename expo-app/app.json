@@ -6,6 +6,7 @@
     "scheme": "nanyen",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -23,10 +24,15 @@
       }
     },
     "android": {
-      "package": "app.nanyen.mobile"
+      "package": "app.nanyen.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ff7ac6"
+      }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       [
@@ -35,6 +41,15 @@
           "ios": {
             "deploymentTarget": "17.0"
           }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash.png",
+          "imageWidth": 240,
+          "resizeMode": "contain",
+          "backgroundColor": "#fff0fb"
         }
       ],
       "@bacons/apple-targets"
