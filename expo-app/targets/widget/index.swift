@@ -101,24 +101,27 @@ struct NANYENWidgetView: View {
                 .buttonStyle(.plain)
                 .foregroundStyle(ink)
 
-                Button(intent: OpenAppIntent()) {
-                    Image(systemName: "arrow.up.forward")
-                        .font(.system(size: 13, weight: .black))
-                        .frame(width: 24, height: 24)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.white)
-                .background(pink)
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                // Plain icon (not a Button): tapping it falls through to the
+                // widget's `widgetURL`, which opens the app.
+                Image(systemName: "arrow.up.forward")
+                    .font(.system(size: 13, weight: .black))
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.white)
+                    .background(pink)
+                    .clipShape(RoundedRectangle(cornerRadius: 7))
             }
 
-            // Amount — the largest element
-            Text(entry.amountText)
-                .font(.system(size: 34, weight: .black))
-                .minimumScaleFactor(0.4)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundStyle(ink)
+            // Amount — the largest element. Wrapped in a no-op button so
+            // tapping it does NOT open the app.
+            Button(intent: NoopIntent()) {
+                Text(entry.amountText)
+                    .font(.system(size: 34, weight: .black))
+                    .minimumScaleFactor(0.4)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(ink)
 
             // Amount add buttons
             HStack(spacing: 4) {
@@ -150,6 +153,8 @@ struct NANYENWidgetView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+        // Only non-button taps (the ↗ icon and padding) open the app.
+        .widgetURL(URL(string: "nanyen://"))
     }
 }
 

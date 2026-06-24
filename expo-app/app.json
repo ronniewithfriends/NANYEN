@@ -3,6 +3,7 @@
     "name": "NANYEN",
     "slug": "nanyen",
     "version": "0.1.0",
+    "scheme": "nanyen",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [

@@ -56,11 +56,11 @@ struct RecordIntent: AppIntent {
     }
 }
 
-// Used only by the top-right "↗" button: opens the app. No other tap target
-// launches the app (the widget sets no widgetURL).
-struct OpenAppIntent: AppIntent {
-    static var title: LocalizedStringResource = "アプリを開く"
-    static var openAppWhenRun: Bool = true
+// A do-nothing intent used to make the big amount text tappable WITHOUT
+// triggering the widget's default "open app" behavior. (Opening the app is
+// handled by the ↗ region via the widget's `widgetURL`.)
+struct NoopIntent: AppIntent {
+    static var title: LocalizedStringResource = "何もしない"
 
     func perform() async throws -> some IntentResult {
         return .result()
