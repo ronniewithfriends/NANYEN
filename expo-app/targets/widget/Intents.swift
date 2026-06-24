@@ -55,3 +55,14 @@ struct RecordIntent: AppIntent {
         return .result()
     }
 }
+
+// Used only by the top-right "↗" button: opens the app. No other tap target
+// launches the app (the widget sets no widgetURL).
+struct OpenAppIntent: AppIntent {
+    static var title: LocalizedStringResource = "アプリを開く"
+    static var openAppWhenRun: Bool = true
+
+    func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}

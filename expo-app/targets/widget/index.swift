@@ -28,39 +28,27 @@ struct NanyenProvider: TimelineProvider {
     }
 }
 
-// MARK: - Buttons
+// MARK: - Small reusable buttons
 
-private struct GenreButton: View {
-    let genre: String
-    let selected: Bool
+private let pink = Color(red: 1, green: 0.16, blue: 0.58)
+private let cyan = Color(red: 0.14, green: 0.78, blue: 0.86)
 
-    var body: some View {
-        Button(intent: SetGenreIntent(genre: genre)) {
-            Text(genre)
-                .font(.system(size: 13, weight: .heavy))
-                .frame(maxWidth: .infinity, minHeight: 30)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(selected ? Color(red: 0.92, green: 0.16, blue: 0.58) : .secondary)
-        .background(selected ? Color(red: 1, green: 0.16, blue: 0.58).opacity(0.16) : Color.white.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-}
-
-private struct AmountButton: View {
+private struct AddButton: View {
     let label: String
     let delta: Int
 
     var body: some View {
         Button(intent: AddAmountIntent(delta: delta)) {
             Text(label)
-                .font(.system(size: 15, weight: .heavy))
-                .frame(maxWidth: .infinity, minHeight: 42)
+                .font(.system(size: 11, weight: .heavy))
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, minHeight: 24)
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
-        .background(Color(red: 0.14, green: 0.78, blue: 0.86).opacity(0.18))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(cyan.opacity(0.18))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -68,61 +56,91 @@ private struct AmountButton: View {
 
 struct NANYENWidgetView: View {
     var entry: NanyenEntry
-    @Environment(\.widgetFamily) var family
 
-    private var amountFontSize: CGFloat { family == .systemLarge ? 38 : 28 }
+    private var prevGenre: String {
+        let genres = NanyenStore.genres
+        let index = genres.firstIndex(of: entry.genre) ?? 0
+        return genres[(index - 1 + genres.count) % genres.count]
+    }
+
+    private var nextGenre: String {
+        let genres = NanyenStore.genres
+        let index = genres.firstIndex(of: entry.genre) ?? 0
+        return genres[(index + 1) % genres.count]
+    }
 
     var body: some View {
-        VStack(spacing: 7) {
-            HStack {
-                Text("NANYEN")
-                    .font(.system(size: 12, weight: .black))
-                    .foregroundStyle(.secondary)
-                Spacer()
+        VStack(spacing: 5) {
+            // Genre selector + open-app button
+            HStack(spacing: 2) {
+                Button(intent: SetGenreIntent(genre: prevGenre)) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .heavy))
+                        .frame(width: 22, height: 24)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+
                 Text(entry.genre)
                     .font(.system(size: 13, weight: .heavy))
-                    .foregroundStyle(Color(red: 0.92, green: 0.16, blue: 0.58))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(pink)
+
+                Button(intent: SetGenreIntent(genre: nextGenre)) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .heavy))
+                        .frame(width: 22, height: 24)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+
+                Button(intent: OpenAppIntent()) {
+                    Image(systemName: "arrow.up.forward")
+                        .font(.system(size: 12, weight: .heavy))
+                        .frame(width: 22, height: 24)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
             }
 
+            // Amount — the largest element
             Text(entry.amountText)
-                .font(.system(size: amountFontSize, weight: .black))
-                .minimumScaleFactor(0.6)
+                .font(.system(size: 34, weight: .black))
+                .minimumScaleFactor(0.4)
                 .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundStyle(.primary)
 
-            HStack(spacing: 6) {
-                ForEach(NanyenStore.genres, id: \.self) { genre in
-                    GenreButton(genre: genre, selected: genre == entry.genre)
-                }
+            // Amount add buttons
+            HStack(spacing: 4) {
+                AddButton(label: "+1000", delta: 1000)
+                AddButton(label: "+100", delta: 100)
+                AddButton(label: "+10", delta: 10)
             }
 
-            HStack(spacing: 6) {
-                AmountButton(label: "+¥1000", delta: 1000)
-                AmountButton(label: "+¥100", delta: 100)
-                AmountButton(label: "+¥10", delta: 10)
-            }
-
-            HStack(spacing: 6) {
+            // Actions
+            HStack(spacing: 4) {
                 Button(intent: ClearDraftIntent()) {
                     Text("クリア")
-                        .font(.system(size: 14, weight: .heavy))
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .font(.system(size: 11, weight: .heavy))
+                        .frame(maxWidth: .infinity, minHeight: 26)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
                 .background(Color.gray.opacity(0.18))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 Button(intent: RecordIntent()) {
                     Text("記録")
-                        .font(.system(size: 16, weight: .black))
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .font(.system(size: 12, weight: .black))
+                        .frame(maxWidth: .infinity, minHeight: 26)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.white)
-                .background(Color(red: 1, green: 0.16, blue: 0.58).opacity(0.92))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(pink.opacity(0.92))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }
@@ -149,7 +167,7 @@ struct NANYENWidget: Widget {
         }
         .configurationDisplayName("NANYEN クイック入力")
         .description("ジャンルを選んで金額をタップで記録")
-        .supportedFamilies([.systemLarge, .systemMedium])
+        .supportedFamilies([.systemSmall])
     }
 }
 
