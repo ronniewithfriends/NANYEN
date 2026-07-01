@@ -66,9 +66,18 @@ export default function App() {
           AsyncStorage.getItem('nanyen_plans'),
           AsyncStorage.getItem('nanyen_next_id'),
         ]);
-        if (entriesJson) setEntries(JSON.parse(entriesJson));
-        if (plansJson) setPlans(JSON.parse(plansJson));
-        if (nextIdStr) setNextEntryId(Number(nextIdStr));
+        if (entriesJson) {
+          const parsed = JSON.parse(entriesJson);
+          if (Array.isArray(parsed)) setEntries(parsed);
+        }
+        if (plansJson) {
+          const parsed = JSON.parse(plansJson);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) setPlans(parsed);
+        }
+        if (nextIdStr) {
+          const parsed = Number(nextIdStr);
+          if (Number.isFinite(parsed) && parsed > 0) setNextEntryId(parsed);
+        }
       } catch {
         // proceed without stored data if storage is unavailable
       }
