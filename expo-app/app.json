@@ -78,6 +78,12 @@
         "projectId": "dca6e341-a14b-48a6-b589-0c221ab0fc82"
       }
     },
-    "owner": "ronniewithfriends"
+    "owner": "ronniewithfriends",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/dca6e341-a14b-48a6-b589-0c221ab0fc82"
+    }
   }
 }
