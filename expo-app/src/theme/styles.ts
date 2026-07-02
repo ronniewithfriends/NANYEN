@@ -216,22 +216,22 @@ export const styles = StyleSheet.create({
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 5,
   },
   dow: {
-    width: '13.4%',
+    width: '14.2857%',
     color: '#6e7887',
     textAlign: 'center',
     fontSize: 11,
     fontWeight: '900',
+    paddingBottom: 4,
   },
-  dayBlank: {
-    width: '13.4%',
-    height: 38,
+  dayCell: {
+    width: '14.2857%',
+    height: 42,
+    padding: 2,
   },
   dayButton: {
-    width: '13.4%',
-    height: 38,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,

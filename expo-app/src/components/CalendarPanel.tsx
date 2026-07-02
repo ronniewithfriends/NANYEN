@@ -37,15 +37,17 @@ export function CalendarPanel({
         {['日', '月', '火', '水', '木', '金', '土'].map((day) => (
           <Text key={day} style={styles.dow}>{day}</Text>
         ))}
-        {blanks.map((_, index) => <View key={`blank-${index}`} style={styles.dayBlank} />)}
+        {blanks.map((_, index) => <View key={`blank-${index}`} style={styles.dayCell} />)}
         {days.map((date) => {
           const selected = dateKey(date) === dateKey(selectedDate);
           const hasEntry = entryDates.has(dateKey(date));
           return (
-            <Pressable key={dateKey(date)} style={[styles.dayButton, selected && styles.daySelected]} onPress={() => onSelectDate(date)}>
-              <Text style={styles.dayText}>{date.getDate()}</Text>
-              {hasEntry && !selected ? <View style={styles.dayDot} /> : null}
-            </Pressable>
+            <View key={dateKey(date)} style={styles.dayCell}>
+              <Pressable style={[styles.dayButton, selected && styles.daySelected]} onPress={() => onSelectDate(date)}>
+                <Text style={styles.dayText}>{date.getDate()}</Text>
+                {hasEntry && !selected ? <View style={styles.dayDot} /> : null}
+              </Pressable>
+            </View>
           );
         })}
       </View>
